@@ -1,34 +1,25 @@
-const URL = 'https://kodaktor.ru/j/users';
-const { get } = require('axios');
+const User = require('./../bd')
 
-// curl -s -i -H 'Content-Type: application/json' 'localhost:4321/users' -d '{"login":"Илья"}'
-// curl -s -i -H 'Content-Type: application/json' 'localhost:4321/users' -d '{"login":"mytsar"}'
-// curl -X "DELETE" localhost:4321/users
+// curl -s -i -H 'Content-Type: application/json' 'localhost:4321/users' -d '{"login":"student"}'
 
 module.exports = (x) => {
  const rtr = x.Router();
 
  rtr
   .route('/')
+
   .get(async r => {
-   		const{data: {users: items}} = await get(URL);
-   		r.res.render('list', {title: 'Login list', items});
+   const  items = await User.find();
+   r.res.render('list', { title: 'Список логинов из БД', items });
   })
+
   .post(async r => {
-  		const login = r.body.login;
- 		const {data: {users: items}} = await get(URL);
-
-   			pass = 'login not found!';
-   			for(i of items){
-    			if(i.login == login)
-     				pass = i.password;
-   			}
-
-   r.res.send(login + ": " + pass + '\n');
-  })
-  .delete(async r => {
-  	r.res.send('«Удаление невозможно»' + '\n');
+  	const item = await User.findOne({"login": r.body.login});
+  	r.res.send(item.login + ': ' + item.password + '\n');
   });
-  	
+
+  // модуль с добавлением и удалением
+  
+
  return rtr;
 }
